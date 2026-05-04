@@ -1,0 +1,25 @@
+{
+  "name": "digital-all-city",
+  "productName": "Digital All City",
+  "version": "0.2.0",
+  "description": "90s-flavored sketchpad for digital graffiti — tag the world without damaging anything physical.",
+  "private": true,
+  "main": "electron/main.cjs",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "serve": "python3 -m http.server 5173",
+    "live": "concurrently -k -n electron,sync -c green,magenta \"electron .\" \"node scripts/auto-sync.mjs\"",
+    "auto-sync": "node scripts/auto-sync.mjs",
+    "package:mac": "electron-packager . \"Digital All City\" --platform=darwin --arch=arm64 --overwrite --out=dist --app-bundle-id=com.tmf.digitalallcity --app-category-type=public.app-category.graphics-design",
+    "package:mac-x64": "electron-packager . \"Digital All City\" --platform=darwin --arch=x64 --overwrite --out=dist --app-bundle-id=com.tmf.digitalallcity",
+    "package:win": "electron-packager . \"Digital All City\" --platform=win32 --arch=x64 --overwrite --out=dist",
+    "package:linux": "electron-packager . \"Digital All City\" --platform=linux --arch=x64 --overwrite --out=dist"
+  },
+  "devDependencies": {
+    "chokidar": "^4.0.3",
+    "concurrently": "^9.1.0",
+    "electron": "^33.0.0",
+    "electron-packager": "^17.1.2"
+  }
+}

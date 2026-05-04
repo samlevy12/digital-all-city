@@ -1,0 +1,909 @@
+/* ---------------------------------------------------------------------------
+   Graffiti — Win95 desktop chrome
+   --------------------------------------------------------------------------- */
+
+:root {
+  --bg: #c0c0c0;
+  --bg-light: #dfdfdf;
+  --shadow-dark: #808080;
+  --shadow-darker: #404040;
+  --highlight: #ffffff;
+  --selection: #000080;
+  --selection-bright: #1084d0;
+  --selection-text: #ffffff;
+  --teal: #008080;
+  --warning: #ff0000;
+  --link: #0000ff;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  background: var(--teal);
+  font-family: "MS Sans Serif", "Tahoma", "Geneva", sans-serif;
+  font-size: 11px;
+  color: #000;
+  -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: grayscale;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: default;
+}
+
+button { font: inherit; color: inherit; }
+
+/* Crosshatch noise on the desktop — not heavy, just texture. */
+.desktop {
+  position: fixed;
+  inset: 0;
+  bottom: 28px;
+  background: var(--teal);
+  background-image:
+    repeating-linear-gradient(0deg, rgba(255,255,255,0.015) 0 1px, transparent 1px 2px),
+    repeating-linear-gradient(90deg, rgba(0,0,0,0.015) 0 1px, transparent 1px 2px);
+  overflow: hidden;
+}
+
+/* ----- Desktop icons ----- */
+.desktop-icons {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 80px;
+}
+
+.desktop-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 4px 2px;
+  cursor: default;
+  border: 1px dotted transparent;
+}
+.desktop-icon:hover { background: rgba(0,0,0,0.04); }
+.desktop-icon.active {
+  border: 1px dotted #fff;
+  background: rgba(0,0,128,0.4);
+}
+.desktop-icon img,
+.desktop-icon svg,
+.desktop-icon .icon-glyph {
+  width: 32px; height: 32px;
+  display: block;
+  image-rendering: pixelated;
+  margin-bottom: 4px;
+}
+.desktop-icon .label {
+  color: #fff;
+  text-align: center;
+  text-shadow: 1px 1px 0 #000;
+  line-height: 12px;
+  word-break: break-word;
+}
+
+/* ----- Taskbar ----- */
+.taskbar {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  height: 28px;
+  background: var(--bg);
+  border-top: 2px solid;
+  border-color: var(--highlight) transparent transparent transparent;
+  display: flex;
+  align-items: center;
+  padding: 2px;
+  z-index: 9999;
+  gap: 2px;
+}
+
+.start-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px 2px 4px;
+  background: var(--bg);
+  border: 1px solid;
+  border-color: var(--highlight) var(--shadow-darker) var(--shadow-darker) var(--highlight);
+  font-weight: bold;
+  cursor: default;
+  height: 22px;
+}
+.start-btn:active,
+.start-btn.open {
+  border-color: var(--shadow-darker) var(--highlight) var(--highlight) var(--shadow-darker);
+  padding: 3px 5px 1px 5px;
+}
+.start-btn svg { width: 16px; height: 16px; image-rendering: pixelated; }
+
+.taskbar-divider {
+  width: 0;
+  height: 22px;
+  border-left: 1px solid var(--shadow-dark);
+  border-right: 1px solid var(--highlight);
+  margin: 0 2px;
+}
+
+.taskbar-items {
+  display: flex;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.taskbar-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  background: var(--bg);
+  border: 1px solid;
+  border-color: var(--highlight) var(--shadow-darker) var(--shadow-darker) var(--highlight);
+  cursor: default;
+  min-width: 100px;
+  max-width: 180px;
+  height: 22px;
+  font-weight: normal;
+}
+.taskbar-item:hover { background: var(--bg-light); }
+.taskbar-item.active {
+  border-color: var(--shadow-darker) var(--highlight) var(--highlight) var(--shadow-darker);
+  background-image:
+    linear-gradient(45deg, var(--bg-light) 25%, transparent 25%),
+    linear-gradient(-45deg, var(--bg-light) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, var(--bg-light) 75%),
+    linear-gradient(-45deg, transparent 75%, var(--bg-light) 75%);
+  background-size: 4px 4px;
+  background-position: 0 0, 0 2px, 2px -2px, -2px 0;
+  font-weight: bold;
+}
+.taskbar-item .label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.taskbar-item svg { width: 14px; height: 14px; image-rendering: pixelated; flex-shrink: 0; }
+
+.clock {
+  padding: 2px 8px;
+  border: 1px solid;
+  border-color: var(--shadow-darker) var(--highlight) var(--highlight) var(--shadow-darker);
+  height: 22px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ----- Start menu ----- */
+.start-menu {
+  position: fixed;
+  bottom: 30px;
+  left: 2px;
+  width: 200px;
+  background: var(--bg);
+  border: 2px solid;
+  border-color: var(--highlight) var(--shadow-darker) var(--shadow-darker) var(--highlight);
+  box-shadow: 1px 1px 0 var(--shadow-dark);
+  z-index: 10000;
+  display: none;
+  padding: 0;
+}
+.start-menu.open { display: block; }
+
+.start-menu-banner {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 24px;
+  background: linear-gradient(to bottom, var(--selection), #000);
+  color: #fff;
+  font-weight: bold;
+  font-size: 16px;
+  text-orientation: mixed;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 8px 0;
+}
+
+.start-menu-items { padding: 2px 2px 2px 26px; }
+
+.start-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  cursor: default;
+  font-size: 12px;
+}
+.start-menu-item:hover {
+  background: var(--selection);
+  color: var(--selection-text);
+}
+.start-menu-item svg { width: 24px; height: 24px; image-rendering: pixelated; flex-shrink: 0; }
+.start-menu-item.sep {
+  height: 1px;
+  background: var(--shadow-dark);
+  border-bottom: 1px solid var(--highlight);
+  margin: 4px 0;
+  padding: 0;
+}
+.start-menu-item.sep:hover { background: var(--shadow-dark); }
+
+/* ----- Windows ----- */
+.window {
+  position: absolute;
+  background: var(--bg);
+  border: 2px solid;
+  border-color: var(--highlight) var(--shadow-darker) var(--shadow-darker) var(--highlight);
+  box-shadow: 1px 1px 0 0 var(--shadow-dark);
+  display: flex;
+  flex-direction: column;
+  min-width: 240px;
+  min-height: 160px;
+}
+.window.maximized {
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: calc(100% - 28px) !important;
+}
+.window.minimized { display: none; }
+
+.titlebar {
+  background: linear-gradient(to right, #7b7b7b, #a4a4a4);
+  color: #d4d0c8;
+  font-weight: bold;
+  padding: 2px 2px 2px 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 18px;
+  cursor: default;
+  user-select: none;
+}
+.window.active .titlebar {
+  background: linear-gradient(to right, var(--selection), var(--selection-bright));
+  color: var(--selection-text);
+}
+
+.titlebar-title {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.titlebar-title svg { width: 14px; height: 14px; image-rendering: pixelated; flex-shrink: 0; }
+
+.titlebar-buttons { display: flex; gap: 0; }
+
+.tb-btn {
+  width: 16px; height: 14px;
+  background: var(--bg);
+  border: 1px solid;
+  border-color: var(--highlight) var(--shadow-darker) var(--shadow-darker) var(--highlight);
+  color: black;
+  font-size: 9px;
+  font-family: inherit;
+  font-weight: bold;
+  padding: 0;
+  cursor: default;
+  margin-left: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.tb-btn:active {
+  border-color: var(--shadow-darker) var(--highlight) var(--highlight) var(--shadow-darker);
+}
+.tb-btn svg { width: 8px; height: 8px; }
+
+/* Menu bar (paint window) */
+.menubar {
+  display: flex;
+  background: var(--bg);
+  padding: 1px 2px;
+  position: relative;
+  border-bottom: 1px solid var(--shadow-dark);
+}
+.menu {
+  padding: 2px 8px;
+  cursor: default;
+  position: relative;
+}
+.menu:hover, .menu.open {
+  background: var(--selection);
+  color: var(--selection-text);
+}
+.menu u { text-decoration: underline; }
+
+.dropdown {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: var(--bg);
+  border: 1px solid;
+  border-color: var(--highlight) var(--shadow-darker) var(--shadow-darker) var(--highlight);
+  box-shadow: 1px 1px 0 var(--shadow-dark);
+  min-width: 160px;
+  z-index: 100;
+  padding: 2px;
+}
+.menu.open .dropdown { display: block; }
+
+.dropdown-item {
+  color: black;
+  padding: 3px 18px 3px 22px;
+  display: flex;
+  justify-content: space-between;
+  cursor: default;
+  white-space: nowrap;
+}
+.dropdown-item:hover {
+  background: var(--selection);
+  color: var(--selection-text);
+}
+.dropdown-sep {
+  height: 1px;
+  background: var(--shadow-dark);
+  border-bottom: 1px solid var(--highlight);
+  margin: 2px 0;
+}
+.dropdown-item.disabled { color: var(--shadow-dark); }
+.dropdown-item.disabled:hover { background: transparent; color: var(--shadow-dark); }
+
+.window-body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.statusbar {
+  border-top: 1px solid var(--shadow-dark);
+  padding: 2px 2px;
+  display: flex;
+  gap: 2px;
+  background: var(--bg);
+}
+.statusbar > div {
+  border: 1px solid;
+  border-color: var(--shadow-darker) var(--highlight) var(--highlight) var(--shadow-darker);
+  padding: 1px 6px;
+  min-width: 100px;
+  line-height: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.statusbar .grow { flex: 1; min-width: 0; }
+
+/* ---------------------------------------------------------------------------
+   Paint app
+   --------------------------------------------------------------------------- */
+
+.toolbox {
+  width: 56px;
+  padding: 4px;
+  background: var(--bg);
+  border-right: 1px solid var(--shadow-dark);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.tool-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+}
+
+.tool {
+  width: 23px; height: 23px;
+  background: var(--bg);
+  border: 1px solid;
+  border-color: var(--highlight) var(--shadow-darker) var(--shadow-darker) var(--highlight);
+  cursor: default;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+.tool svg { display: block; image-rendering: pixelated; }
+.tool.active {
+  border-color: var(--shadow-darker) var(--highlight) var(--highlight) var(--shadow-darker);
+  background-image:
+    linear-gradient(45deg, var(--highlight) 25%, transparent 25%),
+    linear-gradient(-45deg, var(--highlight) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, var(--highlight) 75%),
+    linear-gradient(-45deg, transparent 75%, var(--highlight) 75%);
+  background-size: 4px 4px;
+  background-position: 0 0, 0 2px, 2px -2px, -2px 0;
+}
+
+.options {
+  margin-top: 4px;
+  border: 1px solid;
+  border-color: var(--shadow-darker) var(--highlight) var(--highlight) var(--shadow-darker);
+  padding: 4px 2px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  align-items: center;
+  min-height: 60px;
+  background: var(--bg);
+}
+
+.size-btn {
+  width: 40px;
+  background: var(--bg);
+  border: 1px solid;
+  border-color: var(--highlight) var(--shadow-darker) var(--shadow-darker) var(--highlight);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: default;
+  padding: 3px 0;
+}
+.size-btn.active {
+  border-color: var(--shadow-darker) var(--highlight) var(--highlight) var(--shadow-darker);
+  background: var(--bg-light);
+}
+.size-dot { background: black; border-radius: 50%; }
+
+.canvas-area {
+  flex: 1;
+  background: var(--shadow-dark);
+  overflow: auto;
+  padding: 12px;
+  position: relative;
+  min-height: 0;
+}
+
+.canvas-frame {
+  background: white;
+  box-shadow: 1px 1px 0 var(--highlight), -1px -1px 0 var(--shadow-darker), 2px 2px 0 var(--bg);
+  display: inline-block;
+  border: 1px solid var(--shadow-darker);
+  position: relative;
+}
+
+canvas.paint-canvas {
+  display: block;
+  cursor: crosshair;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+canvas.paint-preview {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  image-rendering: pixelated;
+}
+
+.text-edit {
+  position: absolute;
+  background: white;
+  border: 1px dotted #000;
+  color: #000;
+  outline: none;
+  font-family: "Times New Roman", serif;
+  font-size: 16px;
+  padding: 0;
+  min-width: 60px;
+  line-height: 1.1;
+  white-space: pre;
+  resize: none;
+  overflow: hidden;
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+.palette-row {
+  background: var(--bg);
+  border-top: 1px solid var(--shadow-dark);
+  padding: 4px 4px 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.current-colors {
+  width: 32px; height: 32px;
+  position: relative;
+  border: 1px solid;
+  border-color: var(--shadow-darker) var(--highlight) var(--highlight) var(--shadow-darker);
+  background: var(--bg);
+  flex-shrink: 0;
+}
+.current-colors .fg, .current-colors .bg {
+  position: absolute;
+  width: 14px; height: 14px;
+  border: 1px solid black;
+  box-shadow: inset 1px 1px 0 var(--highlight), inset -1px -1px 0 var(--shadow-darker);
+}
+.current-colors .fg { top: 3px; left: 3px; z-index: 2; }
+.current-colors .bg { bottom: 3px; right: 3px; z-index: 1; }
+
+.palette {
+  display: grid;
+  grid-template-columns: repeat(14, 16px);
+  grid-template-rows: 16px 16px;
+  gap: 1px;
+}
+
+.swatch {
+  width: 16px; height: 16px;
+  border: 1px solid;
+  border-color: var(--shadow-darker) var(--highlight) var(--highlight) var(--shadow-darker);
+  cursor: default;
+}
+
+/* ---------------------------------------------------------------------------
+   Gallery
+   --------------------------------------------------------------------------- */
+
+.gallery {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  min-height: 0;
+}
+
+.gallery-toolbar {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border-bottom: 1px solid var(--shadow-dark);
+  align-items: center;
+}
+
+.gallery-grid-wrap {
+  flex: 1;
+  background: white;
+  border: 1px solid;
+  border-color: var(--shadow-darker) var(--highlight) var(--highlight) var(--shadow-darker);
+  margin: 4px;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 8px;
+  padding: 8px;
+}
+
+.gallery-card {
+  background: var(--bg);
+  border: 1px solid;
+  border-color: var(--highlight) var(--shadow-darker) var(--shadow-darker) var(--highlight);
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  cursor: default;
+}
+.gallery-card.selected {
+  border-color: var(--shadow-darker) var(--highlight) var(--highlight) var(--shadow-darker);
+  background: var(--bg-light);
+}
+.gallery-thumb-wrap {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background:
+    linear-gradient(45deg, #ccc 25%, transparent 25%),
+    linear-gradient(-45deg, #ccc 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #ccc 75%),
+    linear-gradient(-45deg, transparent 75%, #ccc 75%);
+  background-size: 8px 8px;
+  background-position: 0 0, 0 4px, 4px -4px, -4px 0;
+  background-color: white;
+  border: 1px solid var(--shadow-darker);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.gallery-thumb {
+  max-width: 100%;
+  max-height: 100%;
+  image-rendering: pixelated;
+}
+.gallery-meta {
+  font-size: 10px;
+  line-height: 1.2;
+  display: flex;
+  flex-direction: column;
+}
+.gallery-meta .name {
+  font-weight: bold;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.gallery-meta .geo {
+  color: var(--selection);
+  font-size: 9px;
+}
+.gallery-meta .date {
+  color: var(--shadow-dark);
+  font-size: 9px;
+}
+
+.gallery-empty {
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--shadow-dark);
+}
+
+/* ---------------------------------------------------------------------------
+   Map
+   --------------------------------------------------------------------------- */
+
+.map-window-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.map-toolbar {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border-bottom: 1px solid var(--shadow-dark);
+  align-items: center;
+}
+
+.map-container {
+  flex: 1;
+  background: #aad3df;
+  border: 1px solid;
+  border-color: var(--shadow-darker) var(--highlight) var(--highlight) var(--shadow-darker);
+  margin: 4px;
+  position: relative;
+  min-height: 0;
+}
+
+.leaflet-container {
+  font-family: "MS Sans Serif", "Tahoma", sans-serif !important;
+  background: #aad3df !important;
+  cursor: default !important;
+  height: 100%;
+}
+
+/* Win95-ify Leaflet popups + controls */
+.leaflet-popup-content-wrapper {
+  background: var(--bg);
+  border: 2px solid;
+  border-color: var(--highlight) var(--shadow-darker) var(--shadow-darker) var(--highlight);
+  border-radius: 0;
+  box-shadow: 1px 1px 0 var(--shadow-dark);
+  padding: 0;
+}
+.leaflet-popup-content {
+  margin: 4px;
+  font-family: inherit;
+  font-size: 11px;
+}
+.leaflet-popup-tip {
+  background: var(--bg);
+  border: 1px solid var(--shadow-darker);
+}
+.leaflet-popup-close-button {
+  display: none;
+}
+.leaflet-control-zoom a {
+  background: var(--bg) !important;
+  border: 1px solid !important;
+  border-color: var(--highlight) var(--shadow-darker) var(--shadow-darker) var(--highlight) !important;
+  border-radius: 0 !important;
+  color: #000 !important;
+  font-family: inherit !important;
+  font-weight: bold !important;
+  width: 22px !important;
+  height: 22px !important;
+  line-height: 20px !important;
+}
+.leaflet-control-zoom a:active {
+  border-color: var(--shadow-darker) var(--highlight) var(--highlight) var(--shadow-darker) !important;
+}
+.leaflet-control-attribution {
+  background: var(--bg) !important;
+  border: 1px solid;
+  border-color: var(--shadow-darker) var(--highlight) var(--highlight) var(--shadow-darker);
+  font-size: 9px !important;
+  padding: 1px 4px !important;
+}
+
+.graffiti-pin {
+  width: 24px; height: 24px;
+  background: var(--bg);
+  border: 2px solid;
+  border-color: var(--highlight) var(--shadow-darker) var(--shadow-darker) var(--highlight);
+  box-shadow: 1px 1px 0 var(--shadow-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  cursor: pointer;
+  padding: 1px;
+}
+.graffiti-pin img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.popup-card {
+  width: 160px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.popup-card .popup-img-wrap {
+  background: white;
+  border: 1px solid var(--shadow-darker);
+  height: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.popup-card .popup-img-wrap img {
+  max-width: 100%; max-height: 100%;
+  image-rendering: pixelated;
+}
+.popup-card .popup-name { font-weight: bold; }
+.popup-card .popup-meta { font-size: 9px; color: var(--shadow-dark); }
+.popup-card .popup-actions { display: flex; gap: 4px; }
+
+/* ---------------------------------------------------------------------------
+   Buttons + form controls
+   --------------------------------------------------------------------------- */
+
+.btn {
+  background: var(--bg);
+  border: 1px solid;
+  border-color: var(--highlight) var(--shadow-darker) var(--shadow-darker) var(--highlight);
+  padding: 3px 12px;
+  cursor: default;
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  min-width: 70px;
+}
+.btn:active,
+.btn.pressed {
+  border-color: var(--shadow-darker) var(--highlight) var(--highlight) var(--shadow-darker);
+  padding: 4px 11px 2px 13px;
+}
+.btn:disabled,
+.btn.disabled {
+  color: var(--shadow-dark);
+  text-shadow: 1px 1px 0 var(--highlight);
+}
+
+.input, input[type="text"], textarea {
+  background: white;
+  border: 1px solid;
+  border-color: var(--shadow-darker) var(--highlight) var(--highlight) var(--shadow-darker);
+  padding: 2px 4px;
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  outline: none;
+}
+
+label.field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ---------------------------------------------------------------------------
+   Modal dialog
+   --------------------------------------------------------------------------- */
+
+.modal-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.0);
+  z-index: 9000;
+  cursor: default;
+}
+.modal-backdrop.open { display: block; }
+
+.dialog {
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--bg);
+  border: 2px solid;
+  border-color: var(--highlight) var(--shadow-darker) var(--shadow-darker) var(--highlight);
+  box-shadow: 2px 2px 0 var(--shadow-dark);
+  z-index: 9100;
+  display: flex;
+  flex-direction: column;
+  min-width: 280px;
+  max-width: 480px;
+}
+.dialog-body { padding: 12px; }
+.dialog-actions {
+  padding: 8px 12px;
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+  border-top: 1px solid var(--shadow-dark);
+}
+
+/* ---------------------------------------------------------------------------
+   Misc
+   --------------------------------------------------------------------------- */
+
+.spinner {
+  display: inline-block;
+  width: 12px; height: 12px;
+  border: 2px solid var(--shadow-dark);
+  border-top-color: var(--selection);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.toast {
+  position: fixed;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg);
+  border: 2px solid;
+  border-color: var(--highlight) var(--shadow-darker) var(--shadow-darker) var(--highlight);
+  box-shadow: 2px 2px 0 var(--shadow-dark);
+  padding: 6px 16px;
+  z-index: 11000;
+  font-size: 11px;
+  pointer-events: none;
+  animation: toast-fade 2.4s ease forwards;
+}
+@keyframes toast-fade {
+  0% { opacity: 0; transform: translate(-50%, 20px); }
+  10% { opacity: 1; transform: translate(-50%, 0); }
+  85% { opacity: 1; transform: translate(-50%, 0); }
+  100% { opacity: 0; transform: translate(-50%, -10px); }
+}
+
+/* Mobile tweaks — collapse desktop UX into one window. */
+@media (max-width: 600px) {
+  .desktop-icons { display: none; }
+  .start-menu { width: 92vw; left: 4vw; }
+  .window {
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: calc(100vh - 28px) !important;
+  }
+  .toolbox { width: 50px; }
+  .tool { width: 21px; height: 21px; }
+}

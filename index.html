@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#008080">
+<title>Digital All City</title>
+<link rel="stylesheet" href="./styles.css">
+<link rel="icon" type="image/svg+xml" href='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" shape-rendering="crispEdges"><rect width="16" height="16" fill="%23c0c0c0"/><rect x="1" y="1" width="14" height="11" fill="%23fff" stroke="%23000"/><rect x="3" y="3" width="2" height="2" fill="%23f00"/><rect x="7" y="3" width="2" height="2" fill="%230f0"/><rect x="11" y="3" width="2" height="2" fill="%2300f"/><rect x="3" y="7" width="2" height="2" fill="%23ff0"/><rect x="7" y="7" width="2" height="2" fill="%23f0f"/><rect x="11" y="7" width="2" height="2" fill="%230ff"/></svg>'>
+</head>
+<body>
+  <div class="desktop">
+    <div class="desktop-icons" id="desktop-icons"></div>
+  </div>
+
+  <div class="taskbar" id="taskbar">
+    <button class="start-btn" id="start-btn">
+      <svg viewBox="0 0 16 16" shape-rendering="crispEdges" width="16" height="16">
+        <rect x="2" y="2" width="6" height="5" fill="#f00"/>
+        <rect x="8" y="2" width="6" height="5" fill="#fff"/>
+        <rect x="2" y="7" width="6" height="5" fill="#0c0"/>
+        <rect x="8" y="7" width="6" height="5" fill="#08f"/>
+      </svg>
+      <span>Start</span>
+    </button>
+    <div class="taskbar-divider"></div>
+    <div class="taskbar-items" id="taskbar-items"></div>
+    <div class="clock" id="clock">--:--</div>
+  </div>
+
+  <div class="start-menu" id="start-menu">
+    <div class="start-menu-banner">All City 95</div>
+    <div class="start-menu-items" id="start-menu-items"></div>
+  </div>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
